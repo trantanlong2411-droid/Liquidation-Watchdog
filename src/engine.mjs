@@ -44,7 +44,7 @@ export function validate(x={}){
  return {borrower,marketId,warning,critical,warnWad:a.toString(),critWad:b.toString()};
 }
 export function assess(p){
- const C=BigInt(p.collateral),S=BigInt(p.borrowShares),A=BigInt(p.totalBorrowAssets),
+ const C=BigInt(p.collateral),S=BigInt(p.borrowShares),A=BigInt(p.effectiveBorrowAssets??p.totalBorrowAssets),
  T=BigInt(p.totalBorrowShares),P=BigInt(p.price),L=BigInt(p.lltv),
  storedA=BigInt(p.totalBorrowAssets),
  warn=BigInt(p.warnWad),crit=BigInt(p.critWad);
