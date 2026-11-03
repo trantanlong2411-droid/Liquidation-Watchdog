@@ -2,17 +2,22 @@
 
 [Live Cloudflare Worker](https://liquidation-watchdog.trantanlong2411.workers.dev/) · [GitHub source](https://github.com/trantanlong2411-droid/Liquidation-Watchdog)
 
-## Reviewer proof and submission
+## Operator verification — required before submission
 
-**Submit this proof link:** https://liquidation-watchdog.trantanlong2411.workers.dev/proof
+**Current status: awaiting the user's manual confirmation and original browser JSON export.** A passing CI job is necessary but is not a substitute for operator acceptance.
 
-The new `/proof` page is purpose-built for Pharos reviewers: it maps all four task requirements to the application, shows the verified **historical** Mainnet critical alert, links to permanent GitHub and CI artifacts, and has a **Check real position now** button which invokes an actual read of Pharos Mainnet. The public `/api/proof` endpoint publishes timestamped historical evidence metadata, explicitly distinguished from a fresh `/api/check` response. No test sample is mislabeled as a guaranteed current balance.
+Follow the same proof workflow as the earlier Pharos projects:
 
-Suggested submission:
-- **Proof URL:** https://liquidation-watchdog.trantanlong2411.workers.dev/proof
-- **Repo URL:** https://github.com/trantanlong2411-droid/Liquidation-Watchdog
-- **Video:** optional (+50), not provided.
-- **Notes:** Read-only Morpho Blue liquidation-risk monitor on Pharos Pacific Mainnet (1672), with pinned-block position/debt/LLTV/oracle reads, configurable thresholds, UTC browser-console alerts and alternative approximate repay/top-up actions. Real historical live CRITICAL HF 1.009315788 observed at block 22010881 on Nov 3, 2026; CI plus unit tests passed. Monitoring requires an open browser; debt may exclude unaccrued interest. Sample is a public third-party position.
+1. Open the **[operator verification page](https://liquidation-watchdog.trantanlong2411.workers.dev/verify)**, with the real public borrower and market prefilled.
+2. Run an actual pinned-block position check with WARNING 1.3 and CRITICAL 1.1. Verify collateral, debt, indicative health and alternative approximate repay/top-up actions.
+3. Re-run the same real position with WARNING 2.0 and CRITICAL 1.8. Check both results report actual sources and threshold settings. Test the clearly simulated UTC console alert independently.
+4. Tick each checklist box **only after personally observing** the corresponding behavior, and export the unchanged `liquidation-watchdog-user-verification-*.json` file.
+5. Share the original JSON for independent verification. Run `node scripts/verify-user-export.mjs path/to/export.json` to replay its debt, health, severity, proposed alternatives and provenance checks. An export is self-attested, not a cryptographic RPC proof.
+6. **After** the operator explicitly confirms success and the replay passes, archive the unmodified JSON under `proof/`, create `proof/USER-PROOF.md` with its SHA-256 and evidence, and only then provide submission instructions.
+
+Detailed instructions: [User verification guide](./proof/USER-VERIFICATION-GUIDE.md) and [agent skill](./SKILL.md).
+
+For existing independent historical CI evidence, see the [read-only reviewer page](https://liquidation-watchdog.trantanlong2411.workers.dev/proof). This page shows earlier verified results, **not** a claim that the user has completed manual verification. The public `/api/proof` endpoint contains timestamped historical metadata, explicitly distinguished from fresh `/api/check` reads.
 
 ## Verified public on-chain proof
 
