@@ -17,7 +17,7 @@ test('GET /verify serves interactive operator checklist and export UI',async()=>
  assert.match(page,/ackAlert/);
  assert.match(page,/ackAction/);
  assert.match(page,/Confirm my test and export original JSON/);
- assert.match(page,/Do not submit the task yet/);
+ assert.match(page,/Optional extra evidence/);
  assert.equal(page,VERIFY_HTML);
 });
 
