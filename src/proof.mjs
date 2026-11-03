@@ -13,6 +13,18 @@ export const PROOF_RECORD = Object.freeze({
   debt: '79500.059194 USDC (estimated using stored borrow totals)',
   thresholds: { warning: '1.3', critical: '1.1' },
   monitor: 'Browser console / browser-local history; 60 second polling only while tab open',
+  latestVerifiedAccrual: {
+    testRun: 'https://github.com/trantanlong2411-droid/Liquidation-Watchdog/actions/runs/41638680345',
+    verifiedLogAtUtc: '2026-11-03T12:47:50.391Z',
+    block: '22013618',
+    debt: '79500.170412 USDC',
+    collateral: '90050.87952 strUSD',
+    indicativeHealthFactor: '1.009314376348660348',
+    severity: 'CRITICAL',
+    interestSource: 'IRM_PROJECTED',
+    testsPassed: 21,
+    note: 'Historical live RPC observation, not current position or guaranteed oracle freshness.'
+  },
   requirements: [
     { id: 1, name: 'Position from chain', evidence: 'Morpho Blue position, market, idToMarketParams, oracle.price; all reads pinned to one block' },
     { id: 2, name: 'Configurable thresholds', evidence: 'Editable WARNING / CRITICAL, validated ordering; 1.3/1.1 and 2.0/1.8 verified' },
@@ -74,6 +86,17 @@ ul{padding-left:21px}li{margin:6px 0}.links{display:flex;gap:16px;flex-wrap:wrap
 <div class="card"><b>03 · TIMESTAMPED ALERT CHANNEL</b><h3>Browser console + on-page history</h3><p>A live CRITICAL alert was logged at 2026-11-03 12:04:35 UTC. Browser-only monitoring refreshes every 60 seconds while the tab remains open.</p></div>
 <div class="card"><b>04 · CONCRETE REMEDIES</b><h3>Repay loan or add collateral</h3><p>Estimates how much loan asset to repay OR collateral to add to target the warning threshold plus 0.2, assuming unchanged prices.</p></div>
 </div></section>
+<section class="panel"><h2>Latest verified interest-accrued risk (historical CI)</h2>
+<p>The enhanced monitor projects borrowing interest using the real Morpho IRM <code>borrowRateView</code> and Morpho's WAD Taylor accrual formula at a pinned block, then recomputes borrower debt and an indicative health factor. A failed IRM read explicitly falls back to stored totals with a warning.</p>
+<div class="grid">
+<div class="kpi"><label>ESTIMATED HF · BLOCK 22013618</label><strong class="caution">1.009314376</strong></div>
+<div class="kpi"><label>PROJECTED DEBT</label><strong>79,500.170412 USDC</strong></div>
+<div class="kpi"><label>COLLATERAL</label><strong>90,050.87952 strUSD</strong></div>
+<div class="kpi"><label>CI TESTS</label><strong class="good">21 / 21 PASS</strong></div>
+</div>
+<p class="muted">Verification logged 2026-11-03 12:47:50 UTC; chain 1672. IRM-projecting borrowing debt is an estimate and does not verify oracle feed freshness or guarantee transaction-time health. The example is a public third-party borrower.</p>
+<p><a href="https://github.com/trantanlong2411-droid/Liquidation-Watchdog/actions/runs/41638680345" target="_blank" rel="noopener noreferrer">Open passing 21-test live integration run ↗</a></p>
+</section>
 <section class="panel"><h2>02 / Historical verified on-chain observation</h2>
 <div class="grid">
 <div class="kpi"><label>INDICATIVE HEALTH FACTOR · THEN</label><strong class="caution">1.009315788</strong></div>
