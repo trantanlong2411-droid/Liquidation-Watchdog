@@ -55,7 +55,11 @@ const recomputed=assess({
 assert.equal(r.healthFactor,recomputed.healthFactor);
 assert.equal(r.debtRaw,recomputed.debtRaw);
 assert.equal(r.level,recomputed.level);
-assert.deepEqual(result.alert,alertOf(s));
+assert.ok(result.alert,'Live example should produce a timestamped alert');
+const replayAlert=alertOf(s);
+assert.ok(new Date(result.alert.at).getTime()>0);
+assert.deepEqual({...result.alert,at:null},{...replayAlert,at:null},
+ 'Real alert content must match computed risk; timestamps are generated independently');
 console.log('LIVE_MORPHO_POSITION_VERIFIED',JSON.stringify({
  block:s.block,market:s.marketId,borrower:s.borrower,
  collateral:r.collateral+' '+p.collateralSymbol,debt:r.debt+' '+p.loanSymbol,
