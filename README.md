@@ -2,6 +2,18 @@
 
 [Live Cloudflare Worker](https://liquidation-watchdog.trantanlong2411.workers.dev/) · [GitHub source](https://github.com/trantanlong2411-droid/Liquidation-Watchdog)
 
+## Reviewer proof and submission
+
+**Submit this proof link:** https://liquidation-watchdog.trantanlong2411.workers.dev/proof
+
+The new `/proof` page is purpose-built for Pharos reviewers: it maps all four task requirements to the application, shows the verified **historical** Mainnet critical alert, links to permanent GitHub and CI artifacts, and has a **Check real position now** button which invokes an actual read of Pharos Mainnet. The public `/api/proof` endpoint publishes timestamped historical evidence metadata, explicitly distinguished from a fresh `/api/check` response. No test sample is mislabeled as a guaranteed current balance.
+
+Suggested submission:
+- **Proof URL:** https://liquidation-watchdog.trantanlong2411.workers.dev/proof
+- **Repo URL:** https://github.com/trantanlong2411-droid/Liquidation-Watchdog
+- **Video:** optional (+50), not provided.
+- **Notes:** Read-only Morpho Blue liquidation-risk monitor on Pharos Pacific Mainnet (1672), with pinned-block position/debt/LLTV/oracle reads, configurable thresholds, UTC browser-console alerts and alternative approximate repay/top-up actions. Real historical live CRITICAL HF 1.009315788 observed at block 22010881 on Nov 3, 2026; CI plus unit tests passed. Monitoring requires an open browser; debt may exclude unaccrued interest. Sample is a public third-party position.
+
 ## Verified public on-chain proof
 
 - [Permanent evidence summary with an actual CRITICAL alert](./proof/README.md)
