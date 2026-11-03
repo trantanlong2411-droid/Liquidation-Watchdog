@@ -49,11 +49,22 @@ const recomputed=assess({
  totalBorrowAssets:p.marketBorrowAssetsRaw,totalBorrowShares:p.marketBorrowSharesRaw,
  price:p.oraclePriceRaw,lltv:p.lltvWad,
  loanDecimals:p.loanDecimals,collateralDecimals:p.collateralDecimals,
- marketAgeSeconds:r.marketAgeSeconds,warnWad:'1300000000000000000',
+ marketAgeSeconds:r.marketAgeSeconds,
+ ...(r.borrowInterestSource==='IRM_PROJECTED'?{effectiveBorrowAssets:r.borrowAssetsBasisRaw}:{}),
+ warnWad:'1300000000000000000',
  critWad:'1100000000000000000'
 });
 assert.equal(r.healthFactor,recomputed.healthFactor);
 assert.equal(r.debtRaw,recomputed.debtRaw);
+if(r.borrowInterestSource==='IRM_PROJECTED'){
+ assert.ok(p.interestProjection,'Missing interest projection with projected debt');
+ assert.equal(p.interestProjection.totalBorrowAssets,r.borrowAssetsBasisRaw);
+ assert.ok(BigInt(r.borrowAssetsBasisRaw)>=BigInt(p.marketBorrowAssetsRaw));
+ assert.ok(s.sources.irm?.block===s.block);
+}else{
+ assert.equal(r.borrowInterestSource,'STORED_MARKET');
+ assert.equal(r.borrowAssetsBasisRaw,p.marketBorrowAssetsRaw);
+}
 assert.equal(r.level,recomputed.level);
 assert.ok(result.alert,'Live example should produce a timestamped alert');
 const replayAlert=alertOf(s);
@@ -63,7 +74,7 @@ assert.deepEqual({...result.alert,at:null},{...replayAlert,at:null},
 console.log('LIVE_MORPHO_POSITION_VERIFIED',JSON.stringify({
  block:s.block,market:s.marketId,borrower:s.borrower,
  collateral:r.collateral+' '+p.collateralSymbol,debt:r.debt+' '+p.loanSymbol,
- hf:r.healthFactor,level:r.level,marketAgeSeconds:r.marketAgeSeconds,
+ hf:r.healthFactor,level:r.level,borrowInterestSource:r.borrowInterestSource,marketAgeSeconds:r.marketAgeSeconds,
  repayApprox:r.repaySuggested,collateralApprox:r.addCollateralSuggested,
  oraclePriceRaw:p.oraclePriceRaw,readOnly:true
 }));
