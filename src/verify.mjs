@@ -83,9 +83,9 @@ details{margin-top:10px}summary{cursor:pointer;color:#b7caff}pre{max-height:390p
  let first=null,second=null,simulated=null,firstAlert=null,locked=false;
  function stamp(){return new Date().toISOString();}
  function write(id,value){$(id).textContent=String(value);}
- function reset(){first=null;second=null;firstAlert=null;$('threshold').disabled=true;
+ function reset(){first=null;second=null;firstAlert=null;simulated=null;checks.forEach(id=>$(id).checked=false);$('threshold').disabled=true;
   $('liveGrid').hidden=true;write('thresholdStatus','Complete step 1 first.');
-  write('raw1','No response yet.');write('raw2','No response yet.');
+  write('raw1','No response yet.');write('raw2','No response yet.');write('alertStatus','No test notification produced on this page.');write('alertLog','Alert audit will appear here.');
   write('remedy','Run a live check to reveal approximate repayment and collateral amounts.');check();
  }
  async function request(thresholds){
