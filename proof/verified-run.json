@@ -1,0 +1,59 @@
+{
+  "schema": "pharos-liquidation-watchdog-verified-summary-v1",
+  "verificationDateUtc": "2026-11-03",
+  "testRun": "https://github.com/trantanlong2411-droid/Liquidation-Watchdog/actions/runs/41632625949",
+  "website": "https://liquidation-watchdog.trantanlong2411.workers.dev/",
+  "source": "Live Pharos Mainnet JSON-RPC via deployed Cloudflare Worker",
+  "network": "Pharos Mainnet",
+  "chainId": 1672,
+  "coreContract": "0x18573fA18fd17dDfD790B4a5B5b2977aad3b4Efb",
+  "block": "22010881",
+  "marketId": "0x4cbedaf680d648926bafbce7d874ce717a1b3232ea7084c7c3593aa42bb429cd",
+  "borrower": "0x6cC38cd9741CDcdCD6FFC05b527779596d140e29",
+  "borrowerOwnership": "public third-party example, not the submitter's wallet",
+  "position": {
+    "loanToken": "USDC",
+    "collateralToken": "strUSD",
+    "liquidationLTVPercent": 86,
+    "collateral": "90050.87952",
+    "debtFromStoredTotals": "79500.059194",
+    "indicativeHealthFactor": "1.00931578836241036",
+    "lastInterestUpdateAgeSeconds": 702,
+    "marketAccrualStale": true,
+    "oraclePriceRaw": "1036115352141062678000000"
+  },
+  "thresholds": {
+    "warning": "1.3",
+    "critical": "1.1",
+    "secondCheckWarning": "2.0",
+    "secondCheckCritical": "1.8"
+  },
+  "alert": {
+    "origin": "LIVE_ONCHAIN",
+    "level": "CRITICAL",
+    "at": "2026-11-03T12:04:35.044Z",
+    "channel": "timestamped browser-console and browser-local alert history"
+  },
+  "suggestedAlternatives": {
+    "repayUSDCApprox": "26006.282581",
+    "addCollateralStrUSDApprox": "43778.711612382811458598",
+    "targetHealthFactor": "1.5",
+    "guaranteed": false
+  },
+  "result": {
+    "unitTests": 9,
+    "failed": 0,
+    "workerBundle": "success",
+    "liveIntegration": "success",
+    "transactionBroadcast": false,
+    "privateKeysUsed": false,
+    "fullRawArtifact": "pharos-liquidation-watchdog-live-proof (GitHub Actions, 30-day retention)"
+  },
+  "disclaimers": [
+    "Stored market debt may omit interest accrued since market.lastUpdate; use health as indicative only.",
+    "Oracle freshness was not independently verified.",
+    "Browser monitoring requires the page to remain open; not a server-side 24/7 alert.",
+    "The remedy amounts are indicative alternatives, not transaction instructions or guarantees.",
+    "The public borrower might repay, be liquidated or change position after this test."
+  ]
+}

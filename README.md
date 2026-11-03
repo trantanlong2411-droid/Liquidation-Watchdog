@@ -2,6 +2,12 @@
 
 [Live Cloudflare Worker](https://liquidation-watchdog.trantanlong2411.workers.dev/) · [GitHub source](https://github.com/trantanlong2411-droid/Liquidation-Watchdog)
 
+## Verified public on-chain proof
+
+- [Permanent evidence summary with an actual CRITICAL alert](./proof/README.md)
+- [Machine-readable verified-run summary](./proof/verified-run.json)
+- [Passing GitHub Actions run 41632625949](https://github.com/trantanlong2411-droid/Liquidation-Watchdog/actions/runs/41632625949): 9/9 unit tests, Worker bundle, and real live Morpho borrower reading.
+
 ## What is implemented
 
 This is a fully read-only **Morpho Blue** borrower risk monitor on **Pharos Mainnet, chain ID 1672**. It fetches *real borrower collateral, debt shares, market borrow totals, LLTV and the actual market oracle price* at one pinned on-chain block, and derives an **indicative** health factor. With editable warning and critical thresholds, it records timestamped browser-console alerts and offers two approximate ways to improve health: repay loan tokens or add collateral.
