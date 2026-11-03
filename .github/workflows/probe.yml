@@ -14,4 +14,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - run: npm install ethers@6 --no-save --no-audit --no-fund
       - run: node scripts/probe-markets.mjs
