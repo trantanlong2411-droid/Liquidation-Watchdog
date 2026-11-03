@@ -2,22 +2,23 @@
 
 [Live Cloudflare Worker](https://liquidation-watchdog.trantanlong2411.workers.dev/) · [GitHub source](https://github.com/trantanlong2411-droid/Liquidation-Watchdog)
 
-## Operator verification — required before submission
+## Reviewer-ready evidence — automatic verification, no manual prerequisite
 
-**Current status: awaiting the user's manual confirmation and original browser JSON export.** A passing CI job is necessary but is not a substitute for operator acceptance.
+The task's four requirements are demonstrated by the public deployed Worker, a pinned-block on-chain read engine, 60-second browser monitoring with timestamped console alerts, user-configurable thresholds, approximate repayment/add-collateral alternatives, and independently tested live evidence.
 
-Follow the same proof workflow as the earlier Pharos projects:
+- **Live dashboard:** https://liquidation-watchdog.trantanlong2411.workers.dev/
+- **Public proof page:** https://liquidation-watchdog.trantanlong2411.workers.dev/proof
+- **Live read API:** POST `/api/check` with public borrower/market ID and warning/critical thresholds.
+- **Historical proof metadata:** GET `/api/proof`.
+- **Automated CI:** GitHub Actions re-reads real Pharos Mainnet and recalculates the response, in addition to unit/build checks. A successful historical CI run demonstrates blockchain connectivity at its recorded timestamp, not guaranteed current risk.
 
-1. Open the **[operator verification page](https://liquidation-watchdog.trantanlong2411.workers.dev/verify)**, with the real public borrower and market prefilled.
-2. Run an actual pinned-block position check with WARNING 1.3 and CRITICAL 1.1. Verify collateral, debt, indicative health and alternative approximate repay/top-up actions.
-3. Re-run the same real position with WARNING 2.0 and CRITICAL 1.8. Check both results report actual sources and threshold settings. Test the clearly simulated UTC console alert independently.
-4. Tick each checklist box **only after personally observing** the corresponding behavior, and export the unchanged `liquidation-watchdog-user-verification-*.json` file.
-5. Share the original JSON for independent verification. Run `node scripts/verify-user-export.mjs path/to/export.json` to replay its debt, health, severity, proposed alternatives and provenance checks. An export is self-attested, not a cryptographic RPC proof.
-6. **After** the operator explicitly confirms success and the replay passes, archive the unmodified JSON under `proof/`, create `proof/USER-PROOF.md` with its SHA-256 and evidence, and only then provide submission instructions.
+There is **no mandatory user-approval step** to demonstrate the working deployed application. The optional [user verification page](https://liquidation-watchdog.trantanlong2411.workers.dev/verify) and [manual proof guide](./proof/USER-VERIFICATION-GUIDE.md) remain available if a reviewer requests a user-operated JSON export; such files are only attributed to a user if actually exported by that user.
 
-Detailed instructions: [User verification guide](./proof/USER-VERIFICATION-GUIDE.md) and [agent skill](./SKILL.md).
+### Accrued-interest estimation
 
-For existing independent historical CI evidence, see the [read-only reviewer page](https://liquidation-watchdog.trantanlong2411.workers.dev/proof). This page shows earlier verified results, **not** a claim that the user has completed manual verification. The public `/api/proof` endpoint contains timestamped historical metadata, explicitly distinguished from fresh `/api/check` reads.
+Morpho Blue's `market().totalBorrowAssets` is stored at the last interest accrual and can understate borrowing debt. The monitor now attempts the protocol IRM's **read-only `borrowRateView(marketParams, market)`** at the same pinned block and applies Morpho's three-term WAD Taylor compounding to estimate interest through that block. The projected borrow total is used to convert borrower debt shares, calculate indicative health factor and approximate mitigation quantities.
+
+When IRM reading fails, the Worker falls back transparently to stored borrow totals, marks `borrowInterestSource=STORED_MARKET`, and warns that unaccrued interest may understate debt. A projected value is marked `IRM_PROJECTED`; its separate raw basis, calculation inputs and IRM contract method are returned in the JSON. Neither calculation guarantees actual transaction-time debt or oracle feed freshness. No execution or signatures occur. This approach follows [Morpho's IRM view documentation](https://docs.morpho.org/developers/contracts/irm/) and [Morpho Blue interest accounting](https://docs.morpho.org/developers/contracts/blue/).
 
 ## Verified public on-chain proof
 
@@ -42,7 +43,7 @@ A recent \`Borrow(bytes32,address,address,address,uint256,uint256)\` event from 
 - Market ID: \`0x4cbedaf680d648926bafbce7d874ce717a1b3232ea7084c7c3593aa42bb429cd\`
 - Public third-party borrower: \`0x6cc38cd9741cdcdcd6ffc05b527779596d140e29\` (not the site's owner or the user's wallet).
 - Loan token: USDC; collateral: strUSD; LLTV = 86%.
-- The position in the first RPC probe held roughly 90,050.87952 strUSD collateral and owed roughly 79,500.059194 USDC, with **indicative HF ~ 1.0093**, based on stored Morpho borrow totals.
+- The position in the first RPC probe held roughly 90,050.87952 strUSD collateral and owed roughly 79,500.059194 USDC, with **indicative HF ~ 1.0093**, based on stored Morpho borrow totals. This was a historical observation; later checks can produce different values or interest-projected debt.
 - The oracle quoted a real token-pair price (Morpho price scale 1e36). The sample state may evolve, liquidate or close; the app reads it afresh each request and never hardcodes its health.
 
 Morpho's official [liquidation documentation](https://docs.morpho.org/developers/borrow/concepts/liquidation/) explains that HF nearing 1 exposes the borrower to liquidation, and that reducing debt or adding collateral can improve it.
