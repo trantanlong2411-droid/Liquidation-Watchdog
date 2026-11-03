@@ -1,6 +1,7 @@
 import {CONFIG,inspect,validate,alertOf} from './engine.mjs';
 import {HTML} from './page.mjs';
 import {PROOF_HTML,PROOF_RECORD} from './proof.mjs';
+import {VERIFY_HTML} from './verify.mjs';
 const json=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{
  'content-type':'application/json;charset=utf-8','cache-control':'no-store',
  'x-content-type-options':'nosniff'}});
@@ -33,6 +34,10 @@ export default{
   if(request.method==='GET'&&url.pathname==='/')return new Response(HTML,{headers:{
    'content-type':'text/html;charset=utf-8','cache-control':'no-store',
    'x-content-type-options':'nosniff'}});
+  if(request.method==='GET'&&(url.pathname==='/verify'||url.pathname==='/verify/'))
+   return new Response(VERIFY_HTML,{headers:{
+    'content-type':'text/html;charset=utf-8','cache-control':'no-store',
+    'x-content-type-options':'nosniff'}});
   if(request.method==='GET'&&(url.pathname==='/proof'||url.pathname==='/proof/'))
    return new Response(PROOF_HTML,{headers:{
     'content-type':'text/html;charset=utf-8','cache-control':'no-store',
