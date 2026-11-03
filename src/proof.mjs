@@ -35,7 +35,7 @@ export const PROOF_RECORD = Object.freeze({
   ]
 });
 
-export const PROOF_HTML = String.raw\`<!doctype html>
+export const PROOF_HTML = String.raw`<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -139,4 +139,4 @@ ul{padding-left:21px}li{margin:6px 0}.links{display:flex;gap:16px;flex-wrap:wrap
     }finally{button.disabled=false;}
   });
 })();
-</script></body></html>\`;
+</script></body></html>`;
