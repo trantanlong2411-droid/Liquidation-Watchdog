@@ -38,9 +38,18 @@ export function checkLiveProof(answer,warning,critical){
   price:p.oraclePriceRaw,lltv:p.lltvWad,
   loanDecimals:p.loanDecimals,collateralDecimals:p.collateralDecimals,
   marketAgeSeconds:r.marketAgeSeconds,
+  ...(r.borrowInterestSource==='IRM_PROJECTED'?{effectiveBorrowAssets:r.borrowAssetsBasisRaw}:{}),
   warnWad:BigInt(Math.round(Number(warning)*10000))*10n**14n,
   critWad:BigInt(Math.round(Number(critical)*10000))*10n**14n
  });
+ if(r.borrowInterestSource==='IRM_PROJECTED'){
+  demand(p.interestProjection?.totalBorrowAssets===r.borrowAssetsBasisRaw,'Projected market debt lacks verifiable interest projection');
+  demand(BigInt(r.borrowAssetsBasisRaw)>=BigInt(p.marketBorrowAssetsRaw),'Projected market debt cannot be less than stored assets');
+  demand(d.sources.irm?.address?.toLowerCase()===p.irm.toLowerCase(),'Missing or wrong IRM provenance');
+ }else{
+  demand(r.borrowInterestSource==='STORED_MARKET'&&r.borrowAssetsBasisRaw===p.marketBorrowAssetsRaw,
+   'Stored borrow basis mismatch');
+ }
  demand(recalc.healthFactor===r.healthFactor,'HF does not match independently recomputed raw chain values');
  demand(recalc.debtRaw===r.debtRaw,'Debt does not match borrow shares and market totals');
  demand(recalc.level===r.level,'Reported alert category does not match thresholds');
