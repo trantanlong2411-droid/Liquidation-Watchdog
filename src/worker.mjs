@@ -2,6 +2,7 @@ import {CONFIG,inspect,validate,alertOf} from './engine.mjs';
 import {HTML} from './page.mjs';
 import {PROOF_HTML,PROOF_RECORD} from './proof.mjs';
 import {VERIFY_HTML} from './verify.mjs';
+export const BUILD_VERSION='2026-11-03-accrued-irm-v2';
 const json=(x,status=200)=>new Response(JSON.stringify(x),{status,headers:{
  'content-type':'application/json;charset=utf-8','cache-control':'no-store',
  'x-content-type-options':'nosniff'}});
@@ -45,7 +46,7 @@ export default{
   if(request.method==='GET'&&url.pathname==='/api/proof')
    return json(PROOF_RECORD);
   if(request.method==='GET'&&url.pathname==='/api/health')
-   return json({ok:true,service:'liquidation-watchdog',chainId:1672,
+   return json({ok:true,service:'liquidation-watchdog',version:BUILD_VERSION,chainId:1672,
     core:CONFIG.core,example:CONFIG.example,
     alertChannel:'browser-console-with-UTC-timestamps',
     autoMonitor:'browser-only-while-open',readOnly:true,transactionBroadcast:false,
@@ -62,7 +63,7 @@ export default{
   try{
    const data=await inspect(rpc,args);
    const alert=alertOf(data);
-   return json({ok:true,data,alert,readOnly:true,transactionBroadcast:false});
+   return json({ok:true,version:BUILD_VERSION,data,alert,readOnly:true,transactionBroadcast:false});
   }catch(e){return json({ok:false,decision:'NO_VERIFIED_HEALTH',error:String(e.message||e).slice(0,350),
    alert:null,transactionBroadcast:false},502)}
  }
