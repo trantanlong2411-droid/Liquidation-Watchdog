@@ -1,5 +1,21 @@
 # Liquidation Watchdog — real Pharos liquidation risk proof
 
+## Updated independent on-chain proof with accrued borrowing interest (3 November 2026)
+
+- [Passing 21/21-unit-test and deployed live integration workflow](https://github.com/trantanlong2411-droid/Liquidation-Watchdog/actions/runs/41638680345).
+- Pharos Mainnet block **22013618**, from a **public third-party** borrower.
+- Collateral: **90,050.87952 strUSD**; IRM-projected estimated debt: **79,500.170412 USDC**.
+- Estimated health factor: **1.009314376348660348**, classification **CRITICAL**, with configured warning **1.3** and critical **1.1**.
+- The read-only integration response reports **borrowInterestSource: IRM_PROJECTED**. Debt shares are converted using Morpho's projected total borrow asset balance, with the IRM's `borrowRateView` called at the same block as market state and oracle.
+- The integration test independently recomputes debt, health, severity and recommended approximate remedies from the returned raw fields and validates the on-chain source block.
+- The Worker produces a real `LIVE_ONCHAIN` timestamped alert; the project separately labels simulations.
+- CI confirmed **21/21 unit tests** and successful Worker bundle and deployed live integration.
+
+This is a **historical** observation recorded on Nov 3, 2026. The borrow position or oracle can change after the test. Projected interest follows Morpho's three-term Taylor approximation and is **not a guarantee** of exactly what a future transaction will owe; oracle feed update timestamps are not independently verified. No wallet keys, signatures or transactions are used. Browser console monitoring works only while the page remains open.
+
+[Reviewer proof webpage](https://liquidation-watchdog.trantanlong2411.workers.dev/proof) · [Read-only live dashboard](https://liquidation-watchdog.trantanlong2411.workers.dev/)
+
+
 Verified against **live Pharos Mainnet chain ID 1672** on **3 November 2026** using the deployed Cloudflare Worker.
 
 - [Public website](https://liquidation-watchdog.trantanlong2411.workers.dev/)
