@@ -16,3 +16,4 @@ jobs:
           node-version: '22'
       - run: npm install ethers@6 --no-save --no-audit --no-fund
       - run: node scripts/probe-markets.mjs
+      - run: node scripts/probe-positions.mjs
