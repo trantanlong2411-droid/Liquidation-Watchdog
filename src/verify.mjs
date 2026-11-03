@@ -41,7 +41,7 @@ details{margin-top:10px}summary{cursor:pointer;color:#b7caff}pre{max-height:390p
 <div class="kv"><small>ON-CHAIN BLOCK</small><strong id="block">—</strong></div>
 <div class="kv"><small>INDICATIVE HEALTH FACTOR</small><strong id="hf">—</strong></div>
 <div class="kv"><small>COLLATERAL</small><strong id="collateral">—</strong></div>
-<div class="kv"><small>STORED DEBT ESTIMATE</small><strong id="debt">—</strong></div>
+<div class="kv"><small>DEBT ESTIMATE (ACCRUED / STORED)</small><strong id="debt">—</strong></div>
 <div class="kv"><small>RISK CLASSIFICATION</small><strong id="level">—</strong></div>
 <div class="kv"><small>LAST STORED INTEREST UPDATE AGE</small><strong id="interest">—</strong></div>
 </div>
