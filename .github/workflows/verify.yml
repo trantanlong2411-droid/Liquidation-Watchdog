@@ -1,0 +1,40 @@
+name: Liquidation Watchdog — verified on-chain health and console alerts
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  unit-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - name: Test Morpho debt shares, health, thresholds and explicit simulation alerts
+        run: npm test
+      - name: Cloudflare Worker bundle
+        run: npm run build
+  live-pharos-borrower-and-alert:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+      - name: Check a real Morpho borrower at one block and verify recalculated health
+        run: node scripts/smoke-deployed.mjs
+      - name: Save live borrowing and alert evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pharos-liquidation-watchdog-live-proof
+          path: proof/live-watchdog-evidence.json
+          retention-days: 30
+          if-no-files-found: error
