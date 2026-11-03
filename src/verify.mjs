@@ -30,7 +30,7 @@ details{margin-top:10px}summary{cursor:pointer;color:#b7caff}pre{max-height:390p
 <header><span>PHAROS / AGENT ARENA · LIQUIDATION WATCHDOG</span><nav><a href="/">Dashboard</a> · <a href="/proof">Historical proof</a> · <a href="https://github.com/trantanlong2411-droid/Liquidation-Watchdog" target="_blank" rel="noopener">GitHub</a></nav></header>
 <h1>OPERATOR <em>VERIFICATION</em></h1>
 <p class="lead">Follow each step yourself. Confirm the actual application behavior before producing an evidence file. This page never sends a transaction or asks for private keys.</p>
-<div class="banner"><strong>Do not submit the task yet.</strong> First complete live checks, verify a timestamped alert and action suggestions, export the original JSON and provide it for independent checking. The prefilled borrower is a public third-party example. Health readings may be stale because interest accrues after stored market updates.</div>
+<div class="banner"><strong>Optional extra evidence:</strong> This page provides a user-operated proof export in addition to the independently running reviewer demo and CI suite. Complete each step if you want a self-attested browser JSON file; this is not a prerequisite for viewing the working product. The example borrower is a public third party. Estimated debt and risk can change on-chain.</div>
 <section class="panel">
 <h2><span class="num">1</span>Check a real on-chain borrowing position</h2>
 <p class="small">No fabricated account data. Use the known public example or replace it with a verified Pharos Morpho borrower address and the correct market ID.</p>
