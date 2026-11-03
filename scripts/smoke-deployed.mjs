@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {CONFIG,assess,alertOf} from '../src/engine.mjs';
+import {BUILD_VERSION} from '../src/worker.mjs';
 const url=(process.env.WATCHDOG_URL||'https://liquidation-watchdog.trantanlong2411.workers.dev').replace(/\/$/,'');
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function api(path,body){
@@ -14,11 +15,12 @@ async function api(path,body){
 }
 let health;
 for(let i=0;i<22;i++){
- try{health=await api('/api/health');if(health.service==='liquidation-watchdog')break}
+ try{health=await api('/api/health');if(health.service==='liquidation-watchdog'&&health.version===BUILD_VERSION)break}
  catch(e){console.log('WAITING WORKER',i+1,e.message.slice(0,120))}
  await sleep(4800);
 }
 assert.equal(health?.chainId,1672,'Worker has not deployed');
+assert.equal(health?.version,BUILD_VERSION,'Cloudflare Worker has not deployed the tested build version');
 assert.equal(health.readOnly,true);
 assert.equal(health.transactionBroadcast,false);
 let result,error;
@@ -27,6 +29,7 @@ for(let i=0;i<3;i++){
  catch(e){error=e;console.log('LIVE MORPHO RETRY',i+1,e.message);if(i<2)await sleep(13000)}
 }
 if(!result)throw Error('On-chain monitor unavailable: '+error?.message);
+assert.equal(result.version,BUILD_VERSION,'Live API is not the tested build version');
 const s=result.data,p=s.position,r=s.risk;
 assert.equal(s.chainId,1672);
 assert.equal(s.core.toLowerCase(),CONFIG.core.toLowerCase());
