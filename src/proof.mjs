@@ -65,6 +65,7 @@ ul{padding-left:21px}li{margin:6px 0}.links{display:flex;gap:16px;flex-wrap:wrap
 <header><span>PHAROS / AGENT ARENA <span class="tag">MEDIUM · DeFi / Portfolio</span></span><a href="/">← Back to dashboard</a></header>
 <h1>PROOF OF <em>BUILD</em></h1>
 <p class="intro">Liquidation Watchdog · Reviewable evidence for all four challenge requirements. Historical results are labeled as historical, and the button below requests a new on-chain read before showing any current health estimate.</p>
+<div class="banner"><strong>Operator acceptance pending:</strong> Automated tests and historical on-chain observations are independent engineering evidence, not proof that the website has been checked by its owner. <a href="/verify">Run the four-stage manual verification and export your original JSON</a> before preparing any challenge submission.</div>
 <div class="banner"><strong>Evidence integrity:</strong> The verified sample belongs to a public third party. The recorded health factor is a historical estimate, not the current value. Morpho interest may accrue after the stored market update; oracle freshness is not independently proven. This is a read-only monitor, not liquidation insurance.</div>
 <section class="panel"><div class="between"><h2>01 / Requirement coverage</h2><span class="tag">4 / 4 implemented</span></div>
 <div class="grid">
