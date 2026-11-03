@@ -12,7 +12,20 @@ export const MORPHO=new Interface([
 ]);
 const ERC20=new Interface(['function decimals() view returns(uint8)','function symbol() view returns(string)']);
 const PRICE=new Interface(['function price() view returns(uint256)']);
+const IRM=new Interface(['function borrowRateView((address,address,address,address,uint256),(uint128,uint128,uint128,uint128,uint128,uint128)) view returns(uint256)']);
 const WAD=10n**18n,PRICE_SCALE=10n**36n;
+export function projectBorrowAssets(storedAssets,ratePerSecond,elapsedSeconds){
+ const assets=BigInt(storedAssets),rate=BigInt(ratePerSecond),elapsed=BigInt(elapsedSeconds);
+ if(assets<0n||rate<0n||elapsed<0n)throw Error('Invalid interest projection inputs');
+ // Exact three nonzero Taylor terms in Morpho's MathLib.wTaylorCompounded.
+ const first=rate*elapsed;
+ const second=first*first/(2n*WAD);
+ const third=second*first/(3n*WAD);
+ const accruedRatio=first+second+third;
+ const interest=assets*accruedRatio/WAD;
+ return {totalBorrowAssets:(assets+interest).toString(),interestRaw:interest.toString(),
+  factorWad:accruedRatio.toString(),ratePerSecondWad:rate.toString(),elapsedSeconds:Number(elapsed)};
+}
 const ceil=(a,b)=>{if(b<=0n)throw Error('Invalid denominator');return (a+b-1n)/b};
 export function toWad(x){
  const s=String(x);
@@ -33,10 +46,13 @@ export function validate(x={}){
 export function assess(p){
  const C=BigInt(p.collateral),S=BigInt(p.borrowShares),A=BigInt(p.totalBorrowAssets),
  T=BigInt(p.totalBorrowShares),P=BigInt(p.price),L=BigInt(p.lltv),
+ storedA=BigInt(p.totalBorrowAssets),
  warn=BigInt(p.warnWad),crit=BigInt(p.critWad);
  if(C<0n||S<0n||A<0n||T<0n||P<=0n||L<=0n||L>WAD)
   throw Error('Unverified market values');
  // Morpho SharesMathLib virtual assets 1 and virtual shares 1,000,000.
+ if(storedA<0n||A<storedA)throw Error('Invalid projected market borrow amount');
+ const projected=p.effectiveBorrowAssets!==undefined&&p.effectiveBorrowAssets!==null;
  const debt=S?ceil(S*(A+1n),T+1000000n):0n;
  const collateralLoan=C*P/PRICE_SCALE;
  const maxBorrow=collateralLoan*L/WAD;
@@ -45,13 +61,17 @@ export function assess(p){
   collateral:formatUnits(C,p.collateralDecimals),debt:formatUnits(debt,p.loanDecimals),
   collateralValueLoan:formatUnits(collateralLoan,p.loanDecimals),
   maxBorrowLoan:formatUnits(maxBorrow,p.loanDecimals),marketAgeSeconds:Number(p.marketAgeSeconds),
-  interestMayBeUnaccrued:true,marketAccrualStale:stale};
+  interestMayBeUnaccrued:!projected&&stale,marketAccrualStale:stale,
+  borrowInterestSource:projected?'IRM_PROJECTED':'STORED_MARKET',
+  borrowAssetsBasisRaw:A.toString(),storedBorrowAssetsRaw:storedA.toString()};
  if(debt===0n)return {...out,level:C?'NO_DEBT':'NO_POSITION',healthFactor:null,
   repaySuggested:null,addCollateralSuggested:null,targetHealthFactor:null,
   action:'No debt is recorded for this borrower in the selected market. No liquidation alert is applicable.'};
  // HF (WAD) = collateral * Morpho oracle price * LLTV / 1e36 / debt,
  // where the oracle price includes collateral and loan decimal normalization.
- const hf=C*P*L/(PRICE_SCALE*debt);
+ // Morpho's healthy-position check rounds down collateral value and LLTV
+ // separately, and then rounds down the resulting WAD health factor.
+ const hf=maxBorrow*WAD/debt;
  const level=hf<=WAD?'LIQUIDATABLE':hf<=crit?'CRITICAL':hf<=warn?'WARNING':
   stale?'STALE_INTEREST':'HEALTHY_ESTIMATE';
  const target=warn+2n*10n**17n;
@@ -111,11 +131,28 @@ export async function inspect(rpc,raw,observedAt=new Date().toISOString()){
  const ld=Number(loanD[0]),cd=Number(colD[0]);
  if(!Number.isInteger(ld)||ld<0||ld>36||!Number.isInteger(cd)||cd<0||cd>36)
   throw Error('Invalid token precision');
+ // Try a read-only interest projection at the same block as all other inputs.
+ // If the market IRM cannot be verified, preserve the stored-debt estimate,
+ // clearly flagging unaccrued interest instead of inventing a current balance.
+ let interestProjection=null,interestProjectionError=null;
+ const marketAgeSeconds=Math.max(0,timestamp-lastUpdate);
+ if(marketAgeSeconds>0&&irm.toLowerCase()!=='0x0000000000000000000000000000000000000000'){
+  try{
+   const irmCode=await rpc('eth_getCode',[irm,block]);
+   if(!irmCode||irmCode==='0x')throw Error('IRM contract has no code');
+   const avgRate=await read(rpc,irm,IRM,'borrowRateView',
+    [[loan,collateral,oracle,irm,lltv],Array.from(market)],block);
+   interestProjection=projectBorrowAssets(market[2],avgRate[0],marketAgeSeconds);
+  }catch(error){
+   interestProjectionError=String(error?.message||error).slice(0,180);
+  }
+ }
  const risk=assess({
   collateral:position[2],borrowShares:position[1],
   totalBorrowAssets:market[2],totalBorrowShares:market[3],
   price:price[0],lltv,loanDecimals:ld,collateralDecimals:cd,
-  marketAgeSeconds:Math.max(0,timestamp-lastUpdate),
+  marketAgeSeconds,
+  ...(interestProjection?{effectiveBorrowAssets:interestProjection.totalBorrowAssets}:{}),
   warnWad:request.warnWad,critWad:request.critWad
  });
  const blockNumber=b.toString();
@@ -128,14 +165,18 @@ export async function inspect(rpc,raw,observedAt=new Date().toISOString()){
    oracle,irm,lltvWad:String(lltv),lltvPercent:Number(lltv)/1e16,
    collateralRaw:String(position[2]),borrowSharesRaw:String(position[1]),
    marketBorrowAssetsRaw:String(market[2]),marketBorrowSharesRaw:String(market[3]),
-   lastInterestUpdateUnix:lastUpdate,oraclePriceRaw:String(price[0])},
+   lastInterestUpdateUnix:lastUpdate,oraclePriceRaw:String(price[0]),
+   interestProjection,interestProjectionError},
   risk,sources:{
    position:src(CONFIG.core,'position(bytes32,address)',blockNumber),
    market:src(CONFIG.core,'market(bytes32)',blockNumber),
    params:src(CONFIG.core,'idToMarketParams(bytes32)',blockNumber),
-   oracle:src(oracle,'price()',blockNumber)},
+   oracle:src(oracle,'price()',blockNumber),
+   ...(interestProjection?{irm:src(irm,'borrowRateView(marketParams,market)',blockNumber)}:{})},
   limitations:[
-   'Morpho borrow assets are calculated from stored borrow totals and shares. Pending interest since lastUpdate can make true debt greater.',
+   interestProjection?
+    'Interest was estimated from a pinned-block IRM borrowRateView plus Morpho three-term Taylor accrual; read-only estimates can differ from transaction-time execution.':
+    'Morpho borrow assets use stored totals and shares; interest accrued since lastUpdate is not included, so actual debt may be greater.',
    'The market oracle price() does not prove oracle freshness; check the oracle source before using it for decisions.',
    'This public sample borrower is a third party and not your wallet.',
    'Monitoring and alerts work only while the website remains open; no server-side notifications are configured.'
